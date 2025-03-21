@@ -10,23 +10,44 @@ const data = `city,population,area,density,country
   New York City,8537673,784,10892,United States
   Bangkok,8280925,1569,5279,Thailand`;
 
-    const lines = data.split('\n');
-    const table = new Array(lines.length - 1);
-    let max = 0;
+function parseData(data){
+    return new Promise((resolve) => {
 
-
-    for (let i = 1; i <= lines.length - 1; i++) {
-            const cells = lines[i].split(',');
-            const threeElement = cells[3];
-            const d = parseInt(threeElement);
+        let max = 0;
+        const lines = data.split('\n');
+        resolve(lines.slice(1).map(line => {
+            const [city, population, area, density, country] = line.split(',');
+            const d = parseInt(density);
             if (d > max) max = d;
+            return {
+                city,
+                population,
+                area,
+                density,
+                country,
+                relativeDensity: Math.round((density * 100) / max).toString()
+            };
+        }))
+    })
+}
+function sorting(data) {
+    return new Promise((resolve) => {  resolve(data.sort((r1, r2) => r2.relativeDensity - r1.relativeDensity))});
+}
 
-        const a = Math.round(( threeElement * 100) / max).toString();
-        table[i - 1] = [cells[0], cells[1], cells[2], threeElement, cells[4], a];
-    }
+function print(data) {
+    return new Promise((resolve) => {
+            for (const {city, population, area, density, country, relativeDensity} of data) {
+                let s = `${city.padEnd(18)}${population.padStart(10)}${area.padStart(8)}${density.padStart(8)}${country.padStart(18)}${relativeDensity.padStart(6)}`;
+                console.log(s);
+            }
+            resolve()
+        }
+    )
+}
 
-    table.sort((r1, r2) => r2[5] - r1[5]);
-    for (const row of table) {
-        let s = `${row[0].padEnd(18)}${row[1].padStart(10)}${row[2].padStart(8)}${row[3].padStart(8)}${row[4].padStart(18)}${row[5].padStart(6)}`;
-        console.log(s);
-    }
+
+parseData(data)
+    .then(sorting)
+    .then(print)
+    .then(() => console.log('Операция закончена'))
+    .catch((error) => console.error('Внимание! Выполнение операции закончилось ошибкой:', error));
