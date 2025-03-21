@@ -14,6 +14,7 @@ const data = `city,population,area,density,country
     const table = new Array(lines.length - 1);
     let max = 0;
 
+
     for (let i = 1; i <= lines.length - 1; i++) {
             const cells = lines[i].split(',');
             const threeElement = cells[3];
